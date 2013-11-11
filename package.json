@@ -1,0 +1,14 @@
+{
+  "name": "oog",
+  "version": "0.1.0",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/also/oog"
+  },
+  "main": "oog.js",
+  "dependencies": {
+  },
+  "devDependencies": {
+    "coffee-script": "~1.6.3"
+  }
+}
