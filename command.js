@@ -16,7 +16,7 @@ while (args.length > 0) {
 
 if (main) {
   var parts = main.split('.');
-  var fnName = parts.pop();
-  var m = goog.require(parts.join('.'));
-  m[fnName].apply(m, args);
+  parts.pop();
+  goog.require(parts.join('.'));
+  goog.require(main).apply(null, args);
 }
