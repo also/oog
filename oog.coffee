@@ -10,6 +10,10 @@ module.exports = (dir) ->
     script = fs.readFileSync filename, 'utf8'
     vm.runInContext script, context, filename
 
+  base_subdir = path.resolve base_dir, 'goog'
+  if fs.existsSync base_subdir
+    base_dir = base_subdir
+
   load path.resolve base_dir, 'base.js'
   load path.resolve base_dir, 'deps.js'
   {goog} = context
