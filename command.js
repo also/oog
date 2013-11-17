@@ -20,7 +20,3 @@ if (main) {
   var m = goog.require(parts.join('.'));
   m[fnName].apply(m, args);
 }
-var main = process.argv[3];
-if (main) {
-  goog.load(main);
-}
