@@ -4,32 +4,31 @@ path = require 'path'
 Module = require 'module'
 
 oog = (file_or_dir) ->
-  goog = null
+  goog = global: {}
+  goog.global.goog = goog
   context = null
 
-  load = (filename, use_global=true) ->
+  load = (filename) ->
     script = fs.readFileSync filename, 'utf8'
     # remove shebang
     script = script.replace /^\#\!.*/, ''
     m = new Module filename, module
-    if goog
-      script = "with (exports) {\n#{script}\n}"
-      m.exports = goog.global
+    # TODO only need with when script isn't compiled
+    script = "with (exports) {\n#{script}\n}"
+    m.exports = goog.global
     script = "(function(goog, exports, require, module, __filename, __dirname) {#{script}})"
     wrapped = vm.runInThisContext script, filename
     wrapped.call m.exports, goog, m.exports, require, m, filename, path.dirname filename
     m
 
   if fs.statSync(file_or_dir).isFile()
-    context = load(path.resolve(file_or_dir), false).exports
+    context = load(path.resolve(file_or_dir)).exports
   else
     base_dir = path.resolve file_or_dir
     base_subdir = path.resolve base_dir, 'goog'
     if fs.existsSync base_subdir
       base_dir = base_subdir
 
-    goog = global: {}
-    goog.global.goog = goog
     load path.resolve(base_dir, 'base.js')
     load path.resolve base_dir, 'deps.js'
 
