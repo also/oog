@@ -13,9 +13,11 @@ oog = (file_or_dir) ->
     # remove shebang
     script = script.replace /^\#\!.*/, ''
     m = new Module filename, module
-    # TODO only need with when script isn't compiled
-    script = "with (exports) {\n#{script}\n}"
-    m.exports = goog.global
+
+    if script.substr(0, 100).indexOf('var COMPILED = false') > -1
+      script = "with (exports) {\n#{script}\n}"
+      m.exports = goog.global
+
     script = "(function(goog, exports, require, module, __filename, __dirname) {#{script}})"
     wrapped = vm.runInThisContext script, filename
     wrapped.call m.exports, goog, m.exports, require, m, filename, path.dirname filename
