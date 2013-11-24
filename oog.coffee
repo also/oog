@@ -8,15 +8,24 @@ oog = (file_or_dir) ->
   goog.global.goog = goog
   context = null
 
-  load = (filename) ->
+  load = (filename, maybe_compiled=false) ->
     script = fs.readFileSync filename, 'utf8'
     # remove shebang
     script = script.replace /^\#\!.*/, ''
     m = new Module filename, module
 
-    if script.substr(0, 100).indexOf('var COMPILED = false') > -1
+    ###
+    If we're just loading a single optimized file, symbols exported with goog.exportSymbol
+    will be added to `this`. We need to make sure that `this` makes it even if the script
+    is wrapped in a function.
+    ###
+
+    if not maybe_compiled or script.substr(0, 100).indexOf('var COMPILED = false') > -1
       script = "with (exports) {\n#{script}\n}"
       m.exports = goog.global
+    else
+      m.exports = {}
+      script = script.replace /}\)\(\);?\n?$/, '}).call(this);'
 
     script = "(function(goog, exports, require, module, __filename, __dirname) {#{script}})"
     wrapped = vm.runInThisContext script, filename
@@ -24,17 +33,17 @@ oog = (file_or_dir) ->
     m
 
   if fs.statSync(file_or_dir).isFile()
-    context = load(path.resolve(file_or_dir)).exports
+    context = load(path.resolve(file_or_dir), true).exports
   else
     base_dir = path.resolve file_or_dir
     base_subdir = path.resolve base_dir, 'goog'
     if fs.existsSync base_subdir
       base_dir = base_subdir
 
-    load path.resolve(base_dir, 'base.js')
+    load path.resolve base_dir, 'base.js'
     load path.resolve base_dir, 'deps.js'
 
-  if goog?.isProvided_?
+  if goog.isProvided_?
     goog_require = goog.require
     goog.require = (name) ->
       return if goog.isProvided_ name
