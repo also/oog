@@ -5,6 +5,7 @@ function parseArgs() {
   var args = process.argv.slice(2);
   var base = args.shift();
   var load = [];
+  var req = [];
   var run = null;
 
   while (args.length > 0) {
@@ -13,17 +14,23 @@ function parseArgs() {
       run = {main: args.shift(), args: args};
       break;
     }
+    if (arg === '-r') {
+      req.push(args.shift());
+    }
     else {
       load.push(arg);
     }
   }
-  return {base: base, load: load, run: run};
+  return {base: base, load: load, require: req, run: run};
 }
 
 function init(opts) {
   var goog = oog(opts.base);
   for (var i = 0; i < opts.load.length; i++) {
     goog.load(opts.load[i]);
+  }
+  for (var i = 0; i < opts.require.length; i++) {
+    goog.require(opts.require[i]);
   }
   return goog;
 }
