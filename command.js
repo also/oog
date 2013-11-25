@@ -6,6 +6,7 @@ function parseArgs() {
   var base = args.shift();
   var load = [];
   var req = [];
+  var reqAll = false;
   var run = null;
 
   while (args.length > 0) {
@@ -14,14 +15,17 @@ function parseArgs() {
       run = {main: args.shift(), args: args};
       break;
     }
-    if (arg === '-r') {
+    else if (arg === '-r') {
       req.push(args.shift());
+    }
+    else if (arg === '-a') {
+      reqAll = true;
     }
     else {
       load.push(arg);
     }
   }
-  return {base: base, load: load, require: req, run: run};
+  return {base: base, load: load, require: req, requireAll: reqAll, run: run};
 }
 
 function init(opts) {
@@ -31,6 +35,9 @@ function init(opts) {
   }
   for (var i = 0; i < opts.require.length; i++) {
     goog.require(opts.require[i]);
+  }
+  if (opts.requireAll) {
+    goog.requireAll();
   }
   return goog;
 }

@@ -53,6 +53,9 @@ oog = (file_or_dir) ->
     local_require = (name) ->
       goog.require name
       goog.getObjectByName name
+    require_all = ->
+      local_require n for n of goog.dependencies_.nameToPath
+      goog.global
   else
     local_require = (name) ->
       cur = context
@@ -60,9 +63,11 @@ oog = (file_or_dir) ->
         cur = cur[part]
         throw new Error "could not find: #{name}" unless cur?
       cur
+    require_all = ->
 
   load: load
   goog: goog
+  requireAll: require_all
   require: local_require
 
 module.exports = oog
