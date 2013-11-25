@@ -37,8 +37,10 @@ oog = (file_or_dir) ->
   else
     base_dir = path.resolve file_or_dir
     base_subdir = path.resolve base_dir, 'goog'
-    if fs.existsSync base_subdir
-      base_dir = base_subdir
+    try
+      if fs.statSync(base_subdir).isDirectory()
+        base_dir = base_subdir
+    catch
 
     load path.resolve base_dir, 'base.js'
     load path.resolve base_dir, 'deps.js'
