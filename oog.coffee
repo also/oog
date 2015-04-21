@@ -56,7 +56,12 @@ oog = (file_or_dir) ->
       goog.require name
       goog.getObjectByName name
     require_all = ->
-      local_require n for n of goog.dependencies_.nameToPath
+      for n of goog.dependencies_.nameToPath
+        try
+          local_require n
+        catch e
+          if e.code != 'ENOENT'
+            throw e
       goog.global
   else
     local_require = (name) ->
